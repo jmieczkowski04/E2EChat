@@ -1,0 +1,52 @@
+services:
+  migrate:
+    build: 
+      context: SabrinaChatAPI
+      dockerfile: ./Dockerfile.migrations
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=chatapp;Username=postgres;Password=postgrespass
+    depends_on:
+      - db
+    networks:
+      - chatapp-network
+  api:
+    build: SabrinaChatAPI
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Database=chatapp;Username=postgres;Password=postgrespass
+    depends_on:
+      - db
+    networks:
+      - chatapp-network
+    command: ["dotnet", "ChatApp.dll"]
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: chatapp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - chatapp-network
+    
+  gateway:
+    build: SabrinaChatWebSocket
+    environment:
+      - API_URL=http://localhost:8080/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+
+networks:
+  chatapp-network:
+    driver: bridge
