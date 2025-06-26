@@ -14,7 +14,7 @@ This project is a backend-only implementation of an end-to-end encrypted chat sy
   Each user in a conversation receives a AES key for that conversation.  
   These keys are:
   - Randomly generated
-  - Encrypted with the recipient’s public RSA key
+  - Encrypted with the user’s public RSA key
 
 - End-to-End Encryption
   - Messages are encrypted on the client using the AES key before sending.
